@@ -1,0 +1,84 @@
+CREATE SCHEMA IF NOT EXISTS "public";
+
+CREATE  TABLE "public"."admin" ( 
+	id                   serial  NOT NULL  ,
+	email                varchar  NOT NULL  ,
+	pwd                  varchar    ,
+	CONSTRAINT pk_tbl PRIMARY KEY ( id )
+ );
+
+CREATE  TABLE "public".promotions ( 
+	idpromotion          serial  NOT NULL  ,
+	nom                  varchar  NOT NULL  ,
+	datefin              timestamp  NOT NULL  ,
+	datedebut            timestamp  NOT NULL  ,
+	created_at           timestamp    ,
+	updated_at           timestamp    ,
+	CONSTRAINT pk_promotions PRIMARY KEY ( idpromotion )
+ );
+
+CREATE  TABLE "public".semestres ( 
+	idsemestre           serial  NOT NULL  ,
+	nom                  varchar    ,
+	created_at           timestamp    ,
+	updated_at           timestamp    ,
+	CONSTRAINT pk_semestres PRIMARY KEY ( idsemestre )
+ );
+
+CREATE  TABLE "public".etudiants ( 
+	idetudiant           serial  NOT NULL  ,
+	idpromotion          integer    ,
+	nom                  varchar  NOT NULL  ,
+	prenom               varchar  NOT NULL  ,
+	dtn                  date  NOT NULL  ,
+	numetu               varchar  NOT NULL  ,
+	created_at           timestamp    ,
+	updated_at           timestamp    ,
+	CONSTRAINT pk_etudiants PRIMARY KEY ( idetudiant )
+ );
+
+CREATE  TABLE "public".etudiantsemestre ( 
+	id                   serial  NOT NULL  ,
+	idetudiant           integer  NOT NULL  ,
+	idsemestre           integer  NOT NULL  ,
+	"date"               date  NOT NULL  ,
+	created_at           timestamp    ,
+	updated_at           timestamp    ,
+	CONSTRAINT pk_etudiantsemestre PRIMARY KEY ( id )
+ );
+
+CREATE  TABLE "public".matieres ( 
+	idmatiere            serial  NOT NULL  ,
+	reference            varchar  NOT NULL  ,
+	nom                  varchar  NOT NULL  ,
+	coefficient          integer  NOT NULL  ,
+	idsemestre           integer  NOT NULL  ,
+	created_at           timestamp    ,
+	updated_at           timestamp    ,
+	CONSTRAINT pk_matieres PRIMARY KEY ( idmatiere )
+ );
+
+CREATE  TABLE "public".notes ( 
+	idnote               serial  NOT NULL  ,
+	idetudiant           integer  NOT NULL  ,
+	idmatiere            integer  NOT NULL  ,
+	idsemestre           integer  NOT NULL  ,
+	note                 varchar(600)  NOT NULL  ,
+	created_at           timestamp    ,
+	updated_at           timestamp    ,
+	CONSTRAINT pk_notes PRIMARY KEY ( idnote )
+ );
+
+ALTER TABLE "public".etudiants ADD CONSTRAINT fk_etudiants_promotions FOREIGN KEY ( idpromotion ) REFERENCES "public".promotions( idpromotion );
+
+ALTER TABLE "public".etudiantsemestre ADD CONSTRAINT fk_etudiantsemestre_semestres FOREIGN KEY ( idsemestre ) REFERENCES "public".semestres( idsemestre );
+
+ALTER TABLE "public".etudiantsemestre ADD CONSTRAINT fk_etudiantsemestre_etudiants FOREIGN KEY ( idetudiant ) REFERENCES "public".etudiants( idetudiant );
+
+ALTER TABLE "public".matieres ADD CONSTRAINT fk_matieres_semestres FOREIGN KEY ( idsemestre ) REFERENCES "public".semestres( idsemestre );
+
+ALTER TABLE "public".notes ADD CONSTRAINT fk_notes_matieres FOREIGN KEY ( idmatiere ) REFERENCES "public".matieres( idmatiere );
+
+ALTER TABLE "public".notes ADD CONSTRAINT fk_notes_semestres FOREIGN KEY ( idsemestre ) REFERENCES "public".semestres( idsemestre );
+
+ALTER TABLE "public".notes ADD CONSTRAINT fk_notes_etudiants FOREIGN KEY ( idetudiant ) REFERENCES "public".etudiants( idetudiant );

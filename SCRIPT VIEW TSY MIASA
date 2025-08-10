@@ -1,0 +1,185 @@
+///View vaovao
+CREATE OR REPLACE VIEW public.v_newmaxnotes AS
+WITH maxnotes AS (
+    SELECT
+        m.idsemestre AS idsemestre,
+        m.idmatiere AS idmatiere,
+        m.coefficient,
+        m.reference,
+        m.nom AS matiere,
+        m.etat AS etat,
+        e.idetudiant,
+        e.numetu,
+        e.nom AS etudiant,
+        e.prenom AS prenometudiant,
+        mo.groupe AS groupe,
+        MAX(n.note) AS note,
+        s.nom AS semestre
+    FROM
+        etudiants e
+        JOIN v_notewithnotezro n ON e.idetudiant = n.idetudiant
+        JOIN matieres m ON n.idmatiere = m.idmatiere
+        JOIN semestres s ON m.idsemestre = s.idsemestre
+        LEFT JOIN matieroption mo ON m.reference = mo.codematiere
+    GROUP BY
+        e.idetudiant,
+        m.idsemestre,
+        m.idmatiere,
+        m.coefficient,
+        m.reference,
+        m.nom,
+        m.etat,
+        s.nom,
+        mo.groupe
+)
+SELECT
+    idsemestre,
+    semestre,
+    idetudiant,
+    etudiant,
+    prenometudiant,
+    numetu,
+    idmatiere,
+    matiere,
+    coefficient,
+    note,
+    reference,
+    etat,
+    groupe
+FROM
+    maxnotes
+WHERE
+    etat = 0
+    OR (etat = 1 AND (groupe IS NULL OR note = (
+        SELECT MAX(note)
+        FROM maxnotes mn
+        WHERE mn.groupe = maxnotes.groupe
+        AND mn.numetu = maxnotes.numetu
+    )))
+ORDER BY
+    idetudiant,
+    idsemestre,
+    idmatiere ASC;
+
+/////////////////////////View SANS WHERE///////////////////////
+CREATE OR REPLACE VIEW public.v_newmaxnotes AS
+WITH maxnotes AS (
+    SELECT
+        m.idsemestre AS idsemestre,
+        m.idmatiere AS idmatiere,
+        m.coefficient,
+        m.reference,
+        m.nom AS matiere,
+        m.etat AS etat,
+        e.idetudiant,
+        e.numetu,
+        e.nom AS etudiant,
+        e.prenom AS prenometudiant,
+        mo.groupe AS groupe,
+        MAX(n.note) AS note,
+        s.nom AS semestre
+    FROM
+        etudiants e
+        JOIN v_notewithnotezro n ON e.idetudiant = n.idetudiant
+        JOIN matieres m ON n.idmatiere = m.idmatiere
+        JOIN semestres s ON m.idsemestre = s.idsemestre
+        LEFT JOIN matieroption mo ON m.reference = mo.codematiere
+    GROUP BY
+        e.idetudiant,
+        m.idsemestre,
+        m.idmatiere,
+        m.coefficient,
+        m.reference,
+        m.nom,
+        m.etat,
+        s.nom,
+        mo.groupe
+)
+SELECT
+    idsemestre,
+    semestre,
+    idetudiant,
+    etudiant,
+    prenometudiant,
+    numetu,
+    idmatiere,
+    matiere,
+    coefficient,
+    note,
+    reference,
+    etat,
+    groupe
+FROM
+    maxnotes
+ORDER BY
+    idetudiant,
+    idsemestre,
+    idmatiere ASC;
+
+
+///////////////////////////////////////////////////////////////View tena miasa
+CREATE OR REPLACE VIEW public.v_newmaxnotes AS
+WITH maxnotes AS (
+    SELECT
+        m.idsemestre AS idsemestre,
+        m.idmatiere AS idmatiere,
+        m.coefficient,
+        m.reference,
+        m.nom AS matiere,
+        m.etat AS etat,
+        e.idetudiant,
+        e.numetu,
+        e.nom AS etudiant,
+        e.prenom AS prenometudiant,
+        mo.groupe AS groupe,
+        MAX(n.note) AS note,
+        s.nom AS semestre
+    FROM
+        etudiants e
+        JOIN v_notewithnotezro n ON e.idetudiant = n.idetudiant
+        JOIN matieres m ON n.idmatiere = m.idmatiere
+        JOIN semestres s ON m.idsemestre = s.idsemestre
+        LEFT JOIN matieroption mo ON m.reference = mo.codematiere
+    GROUP BY
+        e.idetudiant,
+        m.idsemestre,
+        m.idmatiere,
+        m.coefficient,
+        m.reference,
+        m.nom,
+        m.etat,
+        s.nom,
+        mo.groupe
+)
+SELECT
+    idsemestre,
+    semestre,
+    idetudiant,
+    etudiant,
+    prenometudiant,
+    numetu,
+    idmatiere,
+    matiere,
+    coefficient,
+    note,
+    reference,
+    etat,
+    groupe
+FROM
+    maxnotes
+WHERE
+    etat = 0
+    OR (etat = 1 AND (
+        groupe IS NULL OR
+        idmatiere = (
+            SELECT MIN(idmatiere)
+            FROM maxnotes mn
+            WHERE mn.groupe = maxnotes.groupe
+            AND mn.note = maxnotes.note
+            AND mn.numetu = maxnotes.numetu
+        )
+    ))
+ORDER BY
+    idetudiant,
+    idsemestre,
+    idmatiere ASC;
